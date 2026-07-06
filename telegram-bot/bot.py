@@ -12,9 +12,6 @@ ADMIN_ID    = 7908632313
 NOTIFY_ID   = 7908632313
 SUPPORT_USER = "RkdGarant"
 
-ADD_BALANCE_CHAT_ID  = -1003413725881
-ADD_BALANCE_TOPIC_ID = 7377
-
 bot = telebot.TeleBot(TOKEN)
 
 LOGO_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets', 'logo.png')
@@ -1384,7 +1381,7 @@ def lang_menu(chat_id, user_id, message_id=None):
 # ============================================================
 @bot.message_handler(commands=['add'])
 def add_balance(message):
-    if message.chat.id != ADD_BALANCE_CHAT_ID or not _is_admin(message.from_user.id):
+    if not _is_admin(message.from_user.id):
         return
     thread_id = getattr(message, 'message_thread_id', None)
     parts = message.text.split()
