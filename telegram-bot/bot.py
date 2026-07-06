@@ -258,10 +258,12 @@ def _save_req(user_id, col, val):
 # ============================================================
 # WELCOME TEXT
 # ============================================================
-def welcome_text(lang: str) -> str:
+def welcome_text(lang: str, user_id: int = None) -> str:
     if lang == 'en':
+        id_line = f"\n{e('user','👤')} Your ID: <code>{user_id}</code>\n" if user_id else ""
         return (
-            f"<b>{e('bag','💼')} Welcome to RKD Deals {e('hand','🤝')}</b>\n\n"
+            f"<b>{e('bag','💼')} Welcome to RKD Deals {e('hand','🤝')}</b>\n"
+            f"{id_line}\n"
             f"<blockquote>"
             f"{e('flash','⚡️')} Your reliable P2P escrow:\n"
             f"{e('n1','1️⃣')} Automated deals with NFTs and gifts\n"
@@ -271,7 +273,8 @@ def welcome_text(lang: str) -> str:
             f"</blockquote>"
         )
     return (
-        f"<b>{e('bag','💼')} Добро пожаловать в RKD Deals {e('hand','🤝')}</b>\n\n"
+        f"<b>{e('bag','💼')} Добро пожаловать в RKD Deals {e('hand','🤝')}</b>\n"
+        f"{id_line}\n"
         f"<blockquote>"
         f"{e('flash','⚡️')} Ваш надёжный P2P-гарант:\n"
         f"{e('n1','1️⃣')} Автоматические сделки с NFT и подарками\n"
@@ -356,7 +359,7 @@ def start_command(message):
         return
 
     lang = get_lang(user_id)
-    show_screen(message.chat.id, welcome_text(lang), main_markup(user_id))
+    show_screen(message.chat.id, welcome_text(lang, user_id), main_markup(user_id))
 
 # ============================================================
 # REQUISITES
@@ -707,7 +710,7 @@ def handle_callbacks(call):
 
     if call.data == "menu_main":
         lang = get_lang(user_id)
-        show_screen(cid, welcome_text(lang), main_markup(user_id), mid)
+        show_screen(cid, welcome_text(lang, user_id), main_markup(user_id), mid)
 
     elif call.data == "menu_create":
         show_new_deal(cid, user_id, mid)
@@ -729,11 +732,11 @@ def handle_callbacks(call):
 
     elif call.data == "lang_ru":
         set_lang(user_id, 'ru')
-        show_screen(cid, welcome_text('ru'), main_markup(user_id), mid)
+        show_screen(cid, welcome_text('ru', user_id), main_markup(user_id), mid)
 
     elif call.data == "lang_en":
         set_lang(user_id, 'en')
-        show_screen(cid, welcome_text('en'), main_markup(user_id), mid)
+        show_screen(cid, welcome_text('en', user_id), main_markup(user_id), mid)
 
     elif call.data == "req_edit_ton":
         _req_input(cid, user_id, mid, "req_ton",
