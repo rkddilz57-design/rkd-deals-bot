@@ -1384,10 +1384,9 @@ def lang_menu(chat_id, user_id, message_id=None):
 # ============================================================
 @bot.message_handler(commands=['add'])
 def add_balance(message):
-    if (message.chat.id != ADD_BALANCE_CHAT_ID
-            or getattr(message, 'message_thread_id', None) != ADD_BALANCE_TOPIC_ID):
+    if message.chat.id != ADD_BALANCE_CHAT_ID or not _is_admin(message.from_user.id):
         return
-    thread_id = message.message_thread_id
+    thread_id = getattr(message, 'message_thread_id', None)
     parts = message.text.split()
     if len(parts) != 4:
         bot.send_message(message.chat.id,

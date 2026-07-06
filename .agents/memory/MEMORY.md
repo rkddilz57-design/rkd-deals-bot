@@ -1,1 +1,3 @@
 - [Telegram bot photo-branded menus](telegram-bot-photo-menus.md) — pyTelegramBotAPI menu screens must all originate as photo messages once one screen uses send_photo; edit_message_text fails, use edit_message_caption via a shared show_screen helper.
+- [Telegram bot admin-restricted commands](telegram-bot-admin-restriction.md) — restrict by chat_id + admin user_id, never by message_thread_id (topic IDs are volatile and break the command silently when a topic is recreated).
+- [Deploying Telegram bot to Render](telegram-bot-render-deploy.md) — only one polling instance may run per bot token; Replit dev workflow and Render deployment conflict (409 errors) if both poll simultaneously.
