@@ -5,6 +5,7 @@ from telebot import types
 import sqlite3
 import random
 import string
+from keep_alive import start_keep_alive
 
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 ADMIN_ID    = 7908632313
@@ -1532,6 +1533,7 @@ def _handle_admin_step(message, user_id, state):
 # START
 # ============================================================
 if __name__ == "__main__":
+    start_keep_alive()
     try:
         bot.set_chat_menu_button(menu_button=types.MenuButtonCommands())
         bot.set_my_commands([
