@@ -260,10 +260,8 @@ def _save_req(user_id, col, val):
 # ============================================================
 def welcome_text(lang: str, user_id: int = None) -> str:
     if lang == 'en':
-        id_line = f"\n{e('user','👤')} Your ID: <code>{user_id}</code>\n" if user_id else ""
         return (
-            f"<b>{e('bag','💼')} Welcome to RKD Deals {e('hand','🤝')}</b>\n"
-            f"{id_line}\n"
+            f"<b>{e('bag','💼')} Welcome to RKD Deals {e('hand','🤝')}</b>\n\n"
             f"<blockquote>"
             f"{e('flash','⚡️')} Your reliable P2P escrow:\n"
             f"{e('n1','1️⃣')} Automated deals with NFTs and gifts\n"
@@ -273,8 +271,7 @@ def welcome_text(lang: str, user_id: int = None) -> str:
             f"</blockquote>"
         )
     return (
-        f"<b>{e('bag','💼')} Добро пожаловать в RKD Deals {e('hand','🤝')}</b>\n"
-        f"{id_line}\n"
+        f"<b>{e('bag','💼')} Добро пожаловать в RKD Deals {e('hand','🤝')}</b>\n\n"
         f"<blockquote>"
         f"{e('flash','⚡️')} Ваш надёжный P2P-гарант:\n"
         f"{e('n1','1️⃣')} Автоматические сделки с NFT и подарками\n"
