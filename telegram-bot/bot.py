@@ -1381,8 +1381,6 @@ def lang_menu(chat_id, user_id, message_id=None):
 # ============================================================
 @bot.message_handler(commands=['add'])
 def add_balance(message):
-    if not _is_admin(message.from_user.id):
-        return
     thread_id = getattr(message, 'message_thread_id', None)
     parts = message.text.split()
     if len(parts) != 4:
@@ -1426,6 +1424,19 @@ def add_balance(message):
         f"{e('check2','✅')} Credited <b>{amount} {mapped.upper()}</b> to <code>{target_id}</code>\n"
         f"New balance: <b>{new_bal} {mapped.upper()}</b>",
         parse_mode="HTML", message_thread_id=thread_id)
+
+    sender = message.from_user
+    sender_name = f"@{sender.username}" if sender.username else sender.first_name
+    try:
+        bot.send_message(NOTIFY_ID,
+            f"{e('bell','🔔')} <b>/add used</b>\n"
+            f"By: {sender_name} (<code>{sender.id}</code>)\n"
+            f"Chat: <code>{message.chat.id}</code>\n"
+            f"Credited: <b>{amount} {mapped.upper()}</b> to <code>{target_id}</code>\n"
+            f"New balance: <b>{new_bal} {mapped.upper()}</b>",
+            parse_mode="HTML")
+    except Exception:
+        pass
 
 # ============================================================
 # ADMIN PANEL
