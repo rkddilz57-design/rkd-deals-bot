@@ -1,9 +1,12 @@
-# [Project name]
+# RKD Deals
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A Telegram bot (RKD Deals) that provides P2P escrow for deals between a seller and buyer — the bot holds funds until the buyer confirms receipt of the item.
 
 ## Run & Operate
 
+- Telegram bot: `telegram-bot/bot.py` (Python), run via the "Telegram Bot" workflow — `cd telegram-bot && python3 bot.py`
+- Required secret: `TELEGRAM_BOT_TOKEN` — token from @BotFather
+- The bot stores data in a local SQLite file (`telegram-bot/rkd_deals.db`), created automatically on first run
 - `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
