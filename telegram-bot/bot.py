@@ -1532,5 +1532,12 @@ def _handle_admin_step(message, user_id, state):
 # START
 # ============================================================
 if __name__ == "__main__":
+    try:
+        bot.set_chat_menu_button(menu_button=types.MenuButtonCommands())
+        bot.set_my_commands([
+            types.BotCommand("start", "Меню"),
+        ])
+    except Exception as ex:
+        print(f"Failed to set menu button/commands: {ex}")
     print("RKD Deals bot started...")
     bot.infinity_polling(timeout=30, long_polling_timeout=20)
