@@ -11,11 +11,26 @@ ADMIN_ID    = 7908632313
 NOTIFY_ID   = 7908632313
 SUPPORT_USER = "RkdGarant"
 
-_webapp_domain = os.environ.get("REPLIT_DOMAINS", os.environ.get("REPLIT_DEV_DOMAIN", ""))
-_webapp_domain = _webapp_domain.split(",")[0].strip() if _webapp_domain else ""
-WEBAPP_URL = os.environ.get("WEBAPP_URL") or (f"https://{_webapp_domain}/" if _webapp_domain else "")
-
 bot = telebot.TeleBot(TOKEN)
+
+LOGO_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets', 'logo.png')
+
+def show_screen(chat_id, text, markup, message_id=None):
+    """Render a menu screen as a photo (branded with the RKD logo).
+    If message_id is given, edit that message's caption in place (the
+    message must already be a photo message — all screens originate
+    from a photo message, so this stays consistent across navigation).
+    Otherwise send a brand-new photo message.
+    """
+    if message_id:
+        try:
+            bot.edit_message_caption(caption=text, chat_id=chat_id, message_id=message_id,
+                                      parse_mode="HTML", reply_markup=markup)
+            return
+        except Exception:
+            pass
+    with open(LOGO_PATH, 'rb') as photo:
+        bot.send_photo(chat_id, photo, caption=text, parse_mode="HTML", reply_markup=markup)
 
 # ============================================================
 # EMOJI — dict of IDs (same pattern as reference bot)
@@ -269,13 +284,6 @@ def welcome_text(lang: str) -> str:
 def main_markup(user_id):
     en = is_en(user_id)
     markup = types.InlineKeyboardMarkup(row_width=2)
-    if WEBAPP_URL:
-        markup.row(
-            types.InlineKeyboardButton(
-                "🚀 Открыть приложение" if not en else "🚀 Open app",
-                web_app=types.WebAppInfo(WEBAPP_URL)
-            )
-        )
     markup.row(
         _btn("🪶 Реквизиты" if not en else "🪶 Requisites",   "menu_reqs",    "pin"),
         _btn("🤝 Создать сделку" if not en else "🤝 Create deal",  "menu_create",  "hand"),
@@ -345,12 +353,7 @@ def start_command(message):
         return
 
     lang = get_lang(user_id)
-    bot.send_message(
-        message.chat.id,
-        welcome_text(lang),
-        parse_mode="HTML",
-        reply_markup=main_markup(user_id)
-    )
+    show_screen(message.chat.id, welcome_text(lang), main_markup(user_id))
 
 # ============================================================
 # REQUISITES
@@ -391,10 +394,7 @@ def show_requisites(chat_id, user_id, message_id=None):
             f"</blockquote>"
         )
     markup = req_markup(user_id)
-    if message_id:
-        bot.edit_message_text(text, chat_id, message_id, parse_mode="HTML", reply_markup=markup)
-    else:
-        bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=markup)
+    show_screen(chat_id, text, markup, message_id)
 
 def get_req_for_currency(user_id, currency):
     conn = db()
@@ -435,10 +435,7 @@ def show_new_deal(chat_id, user_id, message_id=None):
         _btn("🛒 " + ("Buyer"  if en else "Я покупатель"),"deal_role_buyer",  "cart"),
     )
     markup.add(back_menu_btn(user_id))
-    if message_id:
-        bot.edit_message_text(text, chat_id, message_id, parse_mode="HTML", reply_markup=markup)
-    else:
-        bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=markup)
+    show_screen(chat_id, text, markup, message_id)
 
 def show_payment_method_seller(chat_id, user_id, message_id=None):
     en = is_en(user_id)
@@ -454,10 +451,7 @@ def show_payment_method_seller(chat_id, user_id, message_id=None):
     markup.add(_btn("💎 " + ("Crypto" if en else "Крипта"), "deal_pm_crypto", "ton"))
     markup.add(back_btn(user_id))
     markup.add(back_menu_btn(user_id))
-    if message_id:
-        bot.edit_message_text(text, chat_id, message_id, parse_mode="HTML", reply_markup=markup)
-    else:
-        bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=markup)
+    show_screen(chat_id, text, markup, message_id)
 
 def show_crypto_choice(chat_id, user_id, message_id=None):
     en = is_en(user_id)
@@ -473,10 +467,7 @@ def show_crypto_choice(chat_id, user_id, message_id=None):
     )
     markup.add(back_btn(user_id))
     markup.add(back_menu_btn(user_id))
-    if message_id:
-        bot.edit_message_text(text, chat_id, message_id, parse_mode="HTML", reply_markup=markup)
-    else:
-        bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=markup)
+    show_screen(chat_id, text, markup, message_id)
 
 def show_card_currency(chat_id, user_id, message_id=None):
     en = is_en(user_id)
@@ -490,10 +481,7 @@ def show_card_currency(chat_id, user_id, message_id=None):
     )
     markup.add(back_btn(user_id))
     markup.add(back_menu_btn(user_id))
-    if message_id:
-        bot.edit_message_text(text, chat_id, message_id, parse_mode="HTML", reply_markup=markup)
-    else:
-        bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=markup)
+    show_screen(chat_id, text, markup, message_id)
 
 def show_enter_amount(chat_id, user_id, currency, message_id=None):
     cur_labels = {
@@ -507,10 +495,7 @@ def show_enter_amount(chat_id, user_id, currency, message_id=None):
     markup.add(_btn("🏦 " + ("Change currency" if en else "Изменить валюту"), "deal_change_cur", "bank"))
     markup.add(back_btn(user_id))
     markup.add(back_menu_btn(user_id))
-    if message_id:
-        bot.edit_message_text(text, chat_id, message_id, parse_mode="HTML", reply_markup=markup)
-    else:
-        bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=markup)
+    show_screen(chat_id, text, markup, message_id)
 
 def show_enter_description(chat_id, user_id, message_id=None):
     en = is_en(user_id)
@@ -526,10 +511,7 @@ def show_enter_description(chat_id, user_id, message_id=None):
         )
     markup = types.InlineKeyboardMarkup()
     markup.add(back_menu_btn(user_id))
-    if message_id:
-        bot.edit_message_text(text, chat_id, message_id, parse_mode="HTML", reply_markup=markup)
-    else:
-        bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=markup)
+    show_screen(chat_id, text, markup, message_id)
 
 # ============================================================
 # MESSAGE STEPS
@@ -722,8 +704,7 @@ def handle_callbacks(call):
 
     if call.data == "menu_main":
         lang = get_lang(user_id)
-        bot.edit_message_text(welcome_text(lang), cid, mid,
-            parse_mode="HTML", reply_markup=main_markup(user_id))
+        show_screen(cid, welcome_text(lang), main_markup(user_id), mid)
 
     elif call.data == "menu_create":
         show_new_deal(cid, user_id, mid)
@@ -745,13 +726,11 @@ def handle_callbacks(call):
 
     elif call.data == "lang_ru":
         set_lang(user_id, 'ru')
-        bot.edit_message_text(welcome_text('ru'), cid, mid,
-            parse_mode="HTML", reply_markup=main_markup(user_id))
+        show_screen(cid, welcome_text('ru'), main_markup(user_id), mid)
 
     elif call.data == "lang_en":
         set_lang(user_id, 'en')
-        bot.edit_message_text(welcome_text('en'), cid, mid,
-            parse_mode="HTML", reply_markup=main_markup(user_id))
+        show_screen(cid, welcome_text('en'), main_markup(user_id), mid)
 
     elif call.data == "req_edit_ton":
         _req_input(cid, user_id, mid, "req_ton",
@@ -787,7 +766,7 @@ def handle_callbacks(call):
         )
         markup = types.InlineKeyboardMarkup()
         markup.add(back_menu_btn(user_id))
-        bot.edit_message_text(text, cid, mid, parse_mode="HTML", reply_markup=markup)
+        show_screen(cid, text, markup, mid)
 
     elif call.data == "deal_pm_card":
         if not get_req_for_currency(user_id, "RUB"):
@@ -936,9 +915,9 @@ def handle_callbacks(call):
         conn.close()
         markup = types.InlineKeyboardMarkup()
         markup.add(back_menu_btn(user_id))
-        bot.edit_message_text(
+        show_screen(cid,
             f"{e('cross','❌')} <b>{'Deal cancelled.' if en else 'Сделка отменена.'}</b>",
-            cid, mid, parse_mode="HTML", reply_markup=markup
+            markup, mid
         )
 
     elif call.data.startswith("release_"):
@@ -1014,10 +993,7 @@ def my_deals(chat_id, user_id, message_id=None, page=0):
     markup.add(_btn("🔍 " + ("Search by code" if en else "Поиск по коду"), "deals_search"))
     markup.add(back_menu_btn(user_id))
 
-    if message_id:
-        bot.edit_message_text(text, chat_id, message_id, parse_mode="HTML", reply_markup=markup)
-    else:
-        bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=markup)
+    show_screen(chat_id, text, markup, message_id)
 
 def _show_deal_detail(chat_id, user_id, deal, message_id=None):
     deal_id, seller_id, buyer_id, description, amount, currency, status, seller_uname, buyer_uname = deal
@@ -1055,10 +1031,7 @@ def _show_deal_detail(chat_id, user_id, deal, message_id=None):
     if status == 'created' and seller_id == user_id:
         markup.add(_btn("❌ " + ("Cancel deal" if en else "Отменить сделку"), f"cancel_{deal_id}", "cross"))
     markup.add(_btn("⬅️ " + ("Back" if en else "Назад"), "back_to_deals", "back"))
-    if message_id:
-        bot.edit_message_text(text, chat_id, message_id, parse_mode="HTML", reply_markup=markup)
-    else:
-        bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=markup)
+    show_screen(chat_id, text, markup, message_id)
 
 # ============================================================
 # DEAL CARD FOR BUYER
@@ -1346,10 +1319,7 @@ def balance_menu(chat_id, user_id, message_id=None):
         _btn("💰 " + ("Withdraw" if en else "Вывести"),    url=f"https://t.me/{SUPPORT_USER}", emoji_key="money"),
     )
     markup.add(back_menu_btn(user_id))
-    if message_id:
-        bot.edit_message_text(text, chat_id, message_id, parse_mode="HTML", reply_markup=markup)
-    else:
-        bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=markup)
+    show_screen(chat_id, text, markup, message_id)
 
 # ============================================================
 # REFERRALS
@@ -1390,10 +1360,7 @@ def referrals_menu(chat_id, user_id, message_id=None):
     markup = types.InlineKeyboardMarkup()
     markup.add(_btn("🔗 " + ("Copy referral link" if en else "Скопировать реф. ссылку"), "ref_copy", "link"))
     markup.add(back_menu_btn(user_id))
-    if message_id:
-        bot.edit_message_text(text, chat_id, message_id, parse_mode="HTML", reply_markup=markup)
-    else:
-        bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=markup)
+    show_screen(chat_id, text, markup, message_id)
 
 # ============================================================
 # LANGUAGE
@@ -1406,10 +1373,7 @@ def lang_menu(chat_id, user_id, message_id=None):
         _btn("🇺🇸 English", "lang_en"),
     )
     markup.add(back_menu_btn(user_id))
-    if message_id:
-        bot.edit_message_text(text, chat_id, message_id, parse_mode="HTML", reply_markup=markup)
-    else:
-        bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=markup)
+    show_screen(chat_id, text, markup, message_id)
 
 # ============================================================
 # /add — admin top-up balance
@@ -1477,10 +1441,7 @@ def admin_menu(chat_id, message_id=None):
         _btn("🔔 Изменить Notify ID", "admin_set_notify"),
         _btn("📊 Статистика", "admin_stats"),
     )
-    if message_id:
-        bot.edit_message_text(text, chat_id, message_id, parse_mode="HTML", reply_markup=markup)
-    else:
-        bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=markup)
+    show_screen(chat_id, text, markup, message_id)
 
 @bot.message_handler(commands=['admin'])
 def admin_command(message):
@@ -1498,15 +1459,15 @@ def handle_admin_callbacks(call):
     bot.answer_callback_query(call.id)
 
     if call.data == "admin_set_support":
-        bot.edit_message_text(
+        show_screen(cid,
             f"{e('plane','✈️')} Введите новый юзернейм поддержки (без @):",
-            cid, mid, parse_mode="HTML")
+            None, mid)
         user_states[user_id] = {"step": "admin_support_user"}
 
     elif call.data == "admin_set_notify":
-        bot.edit_message_text(
+        show_screen(cid,
             f"{e('user','👤')} Введите новый Notify ID (числовой Telegram ID):",
-            cid, mid, parse_mode="HTML")
+            None, mid)
         user_states[user_id] = {"step": "admin_notify_id"}
 
     elif call.data == "admin_stats":
@@ -1521,12 +1482,12 @@ def handle_admin_callbacks(call):
         conn.close()
         markup = types.InlineKeyboardMarkup()
         markup.add(_btn("⬅️ Назад", "admin_back"))
-        bot.edit_message_text(
+        show_screen(cid,
             f"<b>{e('star','⭐')} Статистика</b>\n\n"
             f"Пользователей: <b>{users_count}</b>\n"
             f"Сделок всего: <b>{deals_count}</b>\n"
             f"Завершено: <b>{completed_count}</b>",
-            cid, mid, parse_mode="HTML", reply_markup=markup)
+            markup, mid)
 
     elif call.data == "admin_back":
         admin_menu(cid, mid)
@@ -1564,16 +1525,5 @@ def _handle_admin_step(message, user_id, state):
 # START
 # ============================================================
 if __name__ == "__main__":
-    if WEBAPP_URL:
-        try:
-            bot.set_chat_menu_button(
-                menu_button=types.MenuButtonWebApp(
-                    type="web_app",
-                    text="Mini App",
-                    web_app=types.WebAppInfo(WEBAPP_URL)
-                )
-            )
-        except Exception as ex:
-            print(f"Failed to set menu button: {ex}")
     print("RKD Deals bot started...")
     bot.infinity_polling(timeout=30, long_polling_timeout=20)

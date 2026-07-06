@@ -1,0 +1,1 @@
+- [Telegram bot photo-branded menus](telegram-bot-photo-menus.md) — pyTelegramBotAPI menu screens must all originate as photo messages once one screen uses send_photo; edit_message_text fails, use edit_message_caption via a shared show_screen helper.
