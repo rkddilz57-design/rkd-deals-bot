@@ -1386,11 +1386,12 @@ def add_balance(message):
     if (message.chat.id != ADD_BALANCE_CHAT_ID
             or getattr(message, 'message_thread_id', None) != ADD_BALANCE_TOPIC_ID):
         return
+    thread_id = message.message_thread_id
     parts = message.text.split()
     if len(parts) != 4:
         bot.send_message(message.chat.id,
             f"{e('cross','❌')} <b>Format:</b> <code>/add user_id amount currency</code>",
-            parse_mode="HTML")
+            parse_mode="HTML", message_thread_id=thread_id)
         return
     try:
         target_id = int(parts[1])
@@ -1399,11 +1400,11 @@ def add_balance(message):
     except ValueError:
         bot.send_message(message.chat.id,
             f"{e('cross','❌')} Invalid. Example: <code>/add 123456789 500 rub</code>",
-            parse_mode="HTML")
+            parse_mode="HTML", message_thread_id=thread_id)
         return
     if amount <= 0:
         bot.send_message(message.chat.id,
-            f"{e('cross','❌')} Amount must be > 0.", parse_mode="HTML")
+            f"{e('cross','❌')} Amount must be > 0.", parse_mode="HTML", message_thread_id=thread_id)
         return
     currency_map = {
         'rub':'rub','uah':'uah','kzt':'kzt','byn':'byn',
@@ -1413,7 +1414,7 @@ def add_balance(message):
     if not mapped:
         bot.send_message(message.chat.id,
             f"{e('cross','❌')} Unknown currency. Available: <code>rub uah kzt byn ton stars usdt btc</code>",
-            parse_mode="HTML")
+            parse_mode="HTML", message_thread_id=thread_id)
         return
     bal_col = f"bal_{mapped}"
     ensure_user(target_id)
@@ -1427,7 +1428,7 @@ def add_balance(message):
     bot.send_message(message.chat.id,
         f"{e('check2','✅')} Credited <b>{amount} {mapped.upper()}</b> to <code>{target_id}</code>\n"
         f"New balance: <b>{new_bal} {mapped.upper()}</b>",
-        parse_mode="HTML")
+        parse_mode="HTML", message_thread_id=thread_id)
 
 # ============================================================
 # ADMIN PANEL
