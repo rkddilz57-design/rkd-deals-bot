@@ -517,7 +517,9 @@ def show_enter_description(chat_id, user_id, message_id=None):
 # ============================================================
 # MESSAGE STEPS
 # ============================================================
-@bot.message_handler(func=lambda msg: user_states.get(msg.from_user.id) is not None)
+@bot.message_handler(func=lambda msg: msg.from_user is not None
+                                       and user_states.get(msg.from_user.id) is not None
+                                       and not (msg.text and msg.text.startswith('/')))
 def handle_steps(message):
     user_id = message.from_user.id
     state   = user_states[user_id]
